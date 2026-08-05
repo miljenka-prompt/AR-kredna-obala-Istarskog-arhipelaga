@@ -13,21 +13,18 @@
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
       
       <a-assets>
-        <audio id="dino-sound" src="A_small_Compsognathus_jurassic.mp3" preload="auto"></audio>
-        <img id="jurska" src="jurska_obala1.png" crossorigin="anonymous">
+        <video id="jurska-video" src="jurska_obala_AR_clean.mp4" 
+               preload="auto" loop crossorigin="anonymous" 
+               playsinline webkit-playsinline muted></video>
       </a-assets>
 
       <a-marker preset="hiro" id="marker">
-        <a-plane 
-          src="#jurska" 
-          rotation="-90 0 0" 
-          height="2" 
-          width="3.5"
-          position="0 0 0"
-          animation="property: position; to: 0 0.05 0; dir: alternate; dur: 4000; easing: easeInOutSine; loop: true"
-        ></a-plane>
-
-        <a-entity id="sound-entity" sound="src: #dino-sound; loop: true; volume: 1.0; autoplay: false"></a-entity>
+        <a-video src="#jurska-video" 
+                 rotation="-90 0 0" 
+                 height="2" 
+                 width="3.5"
+                 position="0 0 0">
+        </a-video>
       </a-marker>
 
       <a-entity camera></a-entity>
@@ -35,58 +32,17 @@
 
     <script>
       var marker = document.querySelector('#marker');
-      var soundEntity = document.querySelector('#sound-entity');
-      var isPlaying = false;
+      var video = document.querySelector('#jurska-video');
 
       marker.addEventListener('markerFound', function() {
-        if (!isPlaying && soundEntity.components.sound) {
-          soundEntity.components.sound.playSound();
-          isPlaying = true;
-        }
+        video.muted = false;
+        video.play();
       });
 
       marker.addEventListener('markerLost', function() {
-        if (isPlaying && soundEntity.components.sound) {
-          soundEntity.components.sound.pauseSound();
-          isPlaying = false;
-        }
+        video.pause();
       });
     </script>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
