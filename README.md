@@ -1,2 +1,2 @@
-# AR-jurska-obala
-Demo projekt za AR prikaz obale u jurskom periodu putem Hiro markera
+# AR-kredska-obala
+Demo projekt za AR prikaz obale u kredskom periodu putem Hiro markera
