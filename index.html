@@ -2,28 +2,23 @@
 <html lang="hr">
 <head>
   <meta charset="UTF-8" />
-
   <title>Kredna obala istarskog arhipelaga – AR demo</title>
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1511">
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.min.js"></script>
+
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .spatial-entry{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));z-index:9999;transform:translateX(-50%);display:flex;align-items:center;gap:.55rem;min-height:48px;padding:.78rem 1.05rem;border-radius:999px;color:#fff;text-decoration:none;font-weight:800;font-size:.9rem;background:rgba(10,13,11,.78);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(12px);box-shadow:0 12px 36px rgba(0,0,0,.35)}
+    .spatial-entry span{color:#c7d29a}
+  </style>
 </head>
 
-<body style="margin: 0; overflow: hidden;">
-
-  <a-scene
-    embedded
-    arjs="sourceType: webcam; debugUIEnabled: false;"
-  >
-
+<body>
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
     <a-assets>
-
       <video
         id="jurska-video"
         src="Cretaceous_teropod.mp4"
@@ -33,15 +28,9 @@
         playsinline
         webkit-playsinline>
       </video>
-
     </a-assets>
 
-
-    <a-marker
-      preset="hiro"
-      id="marker"
-    >
-
+    <a-marker preset="hiro" id="marker">
       <a-video
         src="#jurska-video"
         rotation="-90 0 0"
@@ -49,56 +38,29 @@
         width="3.5"
         position="0 0 0">
       </a-video>
-
     </a-marker>
 
-
     <a-entity camera></a-entity>
-
   </a-scene>
 
+  <a class="spatial-entry" href="./spatial-v2.html">
+    <span>●</span> Prostorni kronovizor · bez markera
+  </a>
 
   <script>
-
     var marker = document.querySelector('#marker');
     var video = document.querySelector('#jurska-video');
 
-
     marker.addEventListener('markerFound', function () {
-
       video.muted = true;
-
       video.play().catch(function (error) {
         console.log('Video play error:', error);
       });
-
     });
-
 
     marker.addEventListener('markerLost', function () {
-
       video.pause();
-
     });
-
   </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
