@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1511" />
+  <meta name="description" content="Prostorni WebAR prikaz krednog teropoda u interpretaciji istarskog arhipelaga." />
+  <title>Kredna obala · Prostorni kronovizor</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1/dist/xr.js" async crossorigin="anonymous" data-preload-chunks="slam"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@8thwall/xrextras@1/dist/xrextras.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@8thwall/landing-page@1/dist/landing-page.js" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="./spatial.css?v=1" />
+</head>
+<body>
+  <canvas id="camerafeed"></canvas>
+
+  <div id="hud">
+    <div class="top-row">
+      <a class="back" href="./" aria-label="Povratak na marker AR demo">← Kredna obala</a>
+      <div class="pill">ISTARSKI ARHIPELAG · PROSTORNI KRONOVIZOR</div>
+    </div>
+
+    <div class="status-card">
+      <strong>Kredna obala · interpretativna rekonstrukcija</strong>
+      <div id="status">Uspostavljam prostorni prikaz…</div>
+    </div>
+
+    <div class="actions">
+      <button id="recenter" type="button">Ponovno usidri</button>
+      <button id="video-toggle" type="button">Pokreni prizor</button>
+    </div>
+  </div>
+
+  <script type="module" src="./spatial-v2.js?v=1"></script>
+</body>
+</html>
