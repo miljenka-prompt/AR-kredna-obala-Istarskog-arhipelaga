@@ -6,68 +6,92 @@
   <meta name="theme-color" content="#121b16">
   <meta name="description" content="WebAR paleookolišna interpretacija kredne obale istarskog dijela Jadransko-dinaridske karbonatne platforme.">
   <title>Kredna obala Istre · Kronovizor</title>
-  <link rel="stylesheet" href="./styles.css?v=1">
-  <script defer src="./app.js?v=1"></script>
+  <link rel="stylesheet" href="./styles.css?v=2">
+  <script defer src="./app.js?v=2"></script>
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" class="icon-defs" aria-hidden="true"><defs>
 <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z"/></symbol><symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol><symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h4l2-3h4l2 3h4v13H4Z"/><circle cx="12" cy="13" r="4"/></symbol><symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 4 6 8H3v8h3l5 4ZM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol><symbol id="i-mute" viewBox="0 0 24 24"><path d="M11 4 6 8H3v8h3l5 4Zm5 5 6 6m0-6-6 6"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol><symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-11v1"/></symbol>
 </defs></svg>
+
 <div id="experience">
 <video id="cameraFeed" playsinline muted autoplay aria-hidden="true" hidden></video>
 <div id="page">
-<header class="topbar"><a class="wordmark" href="./">K<span>R</span>ONOVIZOR<span class="brand-line">KREDNA ISTRA</span></a><button id="aboutButton" class="quiet" type="button"><svg><use href="#i-info"/></svg><span>O rekonstrukciji</span></button></header>
+<header class="topbar">
+  <a class="wordmark" href="./">K<span>R</span>ONOVIZOR<span class="brand-line" data-i18n="brand">KREDNA ISTRA</span></a>
+  <div class="top-actions">
+    <div class="switcher" role="group" aria-label="Language"><button type="button" class="switch-btn is-active" data-lang="hr">HR</button><button type="button" class="switch-btn" data-lang="en">EN</button></div>
+    <div class="switcher" role="group" aria-label="Mode"><button type="button" class="switch-btn" data-mode="visitor">Visitor</button><button type="button" class="switch-btn is-active" data-mode="scientific">Scientific</button></div>
+    <button id="aboutButton" class="quiet" type="button"><svg><use href="#i-info"/></svg><span data-i18n="aboutButton">O rekonstrukciji</span></button>
+  </div>
+</header>
+
 <main>
 <section class="intro">
-<p class="eyebrow">ISTRA · KREDA · JADRANSKO-DINARIDSKA KARBONATNA PLATFORMA</p>
-<h1>Obala svijeta <em>dinosaura.</em></h1>
-<p class="lead">Autorska paleookolišna WebAR interpretacija krednog istarskog arhipelaga.</p>
-<p class="context">Istarski kredni karbonati čuvaju tragove dvonožnih teropoda s privremeno izronjenih dijelova Jadransko-dinaridske karbonatne platforme. Ovaj demo vraća moguću izgubljenu prisutnost malog teropoda u plitkom, lagunarnom i peritidalnom okolišu — uz jasnu razliku između fosilnog dokaza, analogije i izvedbene rekonstrukcije.</p>
-<p class="source-line"><strong>Autorski rad · Miljenka Ćurković</strong> · paleobiološka interpretacija + WebAR</p>
+  <p class="eyebrow" data-i18n="eyebrow">ISTRA · KREDA · JADRANSKO-DINARIDSKA KARBONATNA PLATFORMA</p>
+  <h1 data-i18n-html="title">Obala svijeta <em>dinosaura.</em></h1>
+  <p class="lead" data-i18n="lead">Autorska paleookolišna WebAR interpretacija krednog istarskog arhipelaga.</p>
+  <p class="context" data-i18n="context"></p>
+  <p class="source-line"><strong>Miljenka Ćurković</strong> · <span data-i18n="sourceLine">paleobiološka interpretacija + WebAR</span></p>
 </section>
 
-<section class="viewer" aria-label="Rekonstrukcijski prizor"><div class="media-frame"><video id="storyVideo" playsinline webkit-playsinline preload="metadata" aria-label="Autorska rekonstrukcija kredne obale"><source src="./Cretaceous_teropod.mp4?v=20260912c" type="video/mp4">Vaš preglednik ne može prikazati snimku.</video><div class="frame-top"><span>KREDNA ISTRA · PALEOOBALA</span><span>AUTORSKA REKONSTRUKCIJA</span></div><button id="bigPlay" class="big-play" type="button"><svg><use href="#i-play"/></svg><span>Otvori vrijeme</span></button><div id="loading" class="loading" hidden>Učitavam prizor…</div></div><div class="playback"><button id="playButton" class="icon-button" type="button"><svg><use href="#i-play"/></svg></button><label class="sr-only" for="seek">Položaj u snimci</label><input id="seek" type="range" min="0" max="30" value="0" step="0.05"><span id="time" class="time">0:00</span><button id="soundButton" class="icon-button" type="button"><svg><use href="#i-mute"/></svg></button><button id="fullscreenButton" class="icon-button" type="button"><svg><use href="#i-expand"/></svg></button></div></section>
+<section class="viewer" aria-label="Rekonstrukcijski prizor">
+  <div class="media-frame">
+    <video id="storyVideo" playsinline webkit-playsinline preload="metadata"><source src="./Cretaceous_teropod.mp4?v=20260912d" type="video/mp4"></video>
+    <div class="frame-top"><span data-i18n="frameLeft">KREDNA ISTRA · PALEOOBALA</span><span data-i18n="frameRight">AUTORSKA REKONSTRUKCIJA</span></div>
+    <button id="bigPlay" class="big-play" type="button"><svg><use href="#i-play"/></svg><span data-i18n="openTime">Otvori vrijeme</span></button>
+    <div id="loading" class="loading" hidden data-i18n="loading">Učitavam prizor…</div>
+  </div>
+  <div class="playback">
+    <button id="playButton" class="icon-button" type="button"><svg><use href="#i-play"/></svg></button>
+    <label class="sr-only" for="seek">Video position</label><input id="seek" type="range" min="0" max="30" value="0" step="0.05"><span id="time" class="time">0:00</span>
+    <button id="soundButton" class="icon-button" type="button"><svg><use href="#i-mute"/></svg></button><button id="fullscreenButton" class="icon-button" type="button"><svg><use href="#i-expand"/></svg></button>
+  </div>
+</section>
 
 <section class="interpretation">
-<p class="eyebrow">ŠTO GLEDAMO?</p>
-<h2>Karbonatna platforma, plitko more i kopneni prolazi</h2>
-<p>Istarski teropodni tragovi potječu iz više krednih intervala i potvrđuju da su dvonožni teropodi prelazili povremeno izložene dijelove karbonatne platforme. Tragovi mogu ograničiti procjenu građe i veličine životinje, ali sami po sebi ne omogućuju sigurnu identifikaciju roda ili obitelji.</p>
-<p>Prikazana obala zato nije rekonstrukcija jednog točno dokumentiranog lokaliteta. Svijetla karbonatna podloga, plitka voda, niski reljef i fragmentarna vegetacija predstavljaju paleookolišno plausibilan model kredne ADCP, koji se u muzejskoj verziji treba prilagoditi geološkom kontekstu konkretnog eksponata.</p>
-<div class="callout"><strong>Granica rekonstrukcije.</strong> Subjekt je <em>Theropoda indet.</em> — hipotetski mali do srednji teropod. Scipionyx samniticus služi samo kao regionalni i morfološki body-plan analog iz šireg tethijskog/perijadranskog prostora, ne kao taksonomski proxy za istarski trackmaker. Filamentarni/proto-pernati pokrov, boja, ponašanje, raspored vegetacije i konkretan prizor izvedbene su ili narativne odluke, a ne izravno potvrđene osobine istarske životinje.</div>
-<div class="callout"><strong>Eksperimentalna rekonstrukcija vokalizacije.</strong> Nijedan fosil ne čuva zvuk. Audio je modeliran prema komparativnoj anatomiji živih arhosaura, podacima o closed-mouth vokalizaciji u ptica i fosilnim nalazima laringealnih elemenata dinosaura. Cilj je bio izbjeći hollywoodski „roar” i koristiti kratku, zatvoreniju, rezonantnu vokalizaciju. Točan pitch i tip poziva nisu poznati i ne predstavljaju fosilno potvrđen glas ove životinje.</div>
+  <p class="eyebrow" data-i18n="whatEyebrow">ŠTO GLEDAMO?</p>
+  <h2 data-i18n="whatTitle"></h2>
+  <div id="interpretationCopy"></div>
 </section>
 
-<div class="actions"><button id="enterAR" class="primary" type="button"><svg><use href="#i-camera"/></svg><span>Otvori kameru</span></button><a class="secondary" href="./spatial-v2.html">Prostorni kronovizor</a><button id="replay" class="secondary" type="button"><svg><use href="#i-reset"/></svg><span>Ponovi prizor</span></button></div>
-<div class="mode-guide"><span class="guide-step">1 · Otvori kameru</span><span class="guide-arrow">→</span><span class="guide-step">2 · Prostorni kronovizor</span></div>
-<p class="support-hint"><strong>Za prostorni prikaz odaberite „Prostorni kronovizor”.</strong> Bez markera i bez instalacije; teropod se usidri u prostoru pomoću 8th Wall world trackinga.</p><p id="status" class="status" role="status" aria-live="polite"></p>
+<div class="actions">
+  <button id="enterAR" class="primary" type="button"><svg><use href="#i-camera"/></svg><span data-i18n="openCamera">Otvori kameru</span></button>
+  <a id="spatialLink" class="secondary" href="./spatial-v2.html" data-i18n="spatial">Prostorni kronovizor</a>
+  <button id="replay" class="secondary" type="button"><svg><use href="#i-reset"/></svg><span data-i18n="replay">Ponovi prizor</span></button>
+</div>
+<div class="mode-guide"><span class="guide-step" data-i18n="guide1">1 · Otvori kameru</span><span class="guide-arrow">→</span><span class="guide-step" data-i18n="guide2">2 · Prostorni kronovizor</span></div>
+<p class="support-hint" data-i18n-html="support"></p><p id="status" class="status" role="status" aria-live="polite"></p>
 
 <section id="aboutPanel" class="about-panel">
-<p class="eyebrow">IZA VREMENSKOG PROZORA</p>
-<h2>Što je dokumentirano, a što rekonstruirano?</h2>
-<p><strong>Identitet subjekta.</strong> Demo namjerno koristi oznaku <em>Theropoda indet.</em>. Istrijski tragovi potvrđuju prisutnost teropoda, ali ihnološki zapis ne omogućuje pouzdanu atribuciju do roda ili obitelji. Veličinu i AR skaliranje ne treba fiksirati bez dimenzija konkretnog traga; za stalnu muzejsku implementaciju životinju treba skalirati prema odabranom HPM eksponatu.</p>
-<p><strong>Scipionyx kao analog.</strong> Scipionyx je poznat iz Pietraroje u južnoj Italiji, s Apennine Carbonate Platform, a ne s istarske ADCP. Može služiti kao regionalni morfološki analog, ali ne kao dokaz da je isti rod ili ista obitelj ostavila istarske tragove. Njegov tradicionalni smještaj u Compsognathidae također se danas tretira opreznije.</p>
-<p><strong>Paleookoliš.</strong> ADCP je tijekom krede bila prostrana plitkovodna karbonatna platforma. Istarski slojevi s tragovima često pokazuju plitkomorske, tidalne, peritidalne i lagunarne uvjete te povremeno subaeralno izlaganje. Vegetacija na izronjenim površinama nije bila moderna mediteranska vegetacija; paprati, golosjemenjače i rane cvjetnice prikladniji su opći okvir od modernog travnjaka.</p>
-<p><strong>Integument.</strong> Filamentarne strukture poznate su kod više neavijskih dinosaura i čine proto-pernati pokrov razumnom izvedbenom hipotezom. Međutim, koža, ljuske ni perje nisu očuvani na Scipionyxu, a filamentarni pokrov nije izravno potvrđen ni za istarskog trackmakera. Boja, gustoća i uzorak pokrova u videu umjetničke su odluke.</p>
-<p><strong>Ponašanje.</strong> Tragovi dokumentiraju dvonožno kretanje preko izložene karbonatne površine. Hodanje uz obalu, zastajanje i skeniranje okoliša u videu autorski su „dan u životu” — temporalna interpretacija, a ne ponašanje iščitano iz traga.</p>
-<p><strong>Zvuk.</strong> Za istarskog trackmakera nema očuvanog vokalnog aparata ni izravne akustičke evidencije. Fosilni larinksi drugih dinosaura pokazuju da je dinosaurijski vokalni aparat bio raznolik i mogao uključivati bird-like modifikaciju zvuka; živi arhosauri daju komparativni okvir, ali ne određuju konkretan glas ovog teropoda. Closed-mouth coo/boom evolucijski je plausibilan za neke neavijske dinosaure, ali nije univerzalna ni dokazana osobina ciljnog teropoda.</p>
-<p><strong>Audio izvedba.</strong> Zvuk je generiran u ElevenLabs Sound Effects prema autorski zadanim bioakustičkim ograničenjima, zatim obrađen band-pass filtrom 150–3500 Hz, normaliziran i spojen s ambijentalnim zvukom mora. Parametri poput „cassowary/emu” analogije i radnog raspona 1–3 kHz tretiraju se kao sound-design ograničenja, ne kao dokumentirane osobine životinje.</p>
-<p><strong>Metodološki status.</strong> Demo strogo razlikuje četiri sloja: dokumentirano, analogijski/filogenetski precedent, narativnu rekonstrukciju i izvedbenu rekonstrukciju. Prije stalne muzejske implementacije treba zaključati lokalitet, stratigrafsku dob, dimenzije traga i paleookolišni kontekst konkretnog HPM eksponata te prema tome ponovno validirati veličinu, body-plan, okoliš i zvuk.</p>
-
-<div class="sources">
-<a href="https://doi.org/10.4435/BSPI.2024.08" target="_blank" rel="noopener noreferrer">Cau 2024 · theropod macroevolution ↗</a>
-<a href="https://doi.org/10.1038/32884" target="_blank" rel="noopener noreferrer">Dal Sasso & Signore 1998 · Scipionyx soft tissues ↗</a>
-<a href="https://www.researchgate.net/publication/285869244_Theropod_footprints_in_the_Cretaceous_Adriatic-Dinaric_carbonate_platform_Italy_and_Croatia" target="_blank" rel="noopener noreferrer">Dalla Vecchia 1998 · ADCP theropod footprints ↗</a>
-<a href="https://doi.org/10.1111/sed.13146" target="_blank" rel="noopener noreferrer">Graziano et al. 2024 · Pietraroja palaeoenvironment ↗</a>
-<a href="https://doi.org/10.13130/2039-4942/6364" target="_blank" rel="noopener noreferrer">Mezga et al. 2007 · late Albian Istria tracksite ↗</a>
-<a href="https://doi.org/10.1111/evo.12988" target="_blank" rel="noopener noreferrer">Riede et al. 2016 · closed-mouth vocalization ↗</a>
-<a href="https://doi.org/10.1038/s42003-023-04513-x" target="_blank" rel="noopener noreferrer">Yoshida et al. 2023 · dinosaur larynx ↗</a>
-<a href="https://doi.org/10.7717/peerj.19664" target="_blank" rel="noopener noreferrer">Yang et al. 2025 · laryngeal elements ↗</a>
-</div>
-<p class="detail-note">Paleobiološki dossier · radna muzeološka/prototipna dokumentacija, 22. 8. 2026. Koncept, interpretacija i WebAR demonstracija · Miljenka Ćurković.</p>
-<p class="detail-note"><a href="./legacy-hiro.html">Raniji AR.js / HIRO prototip ↗</a></p>
+  <p class="eyebrow" data-i18n="behindEyebrow">IZA VREMENSKOG PROZORA</p>
+  <h2 data-i18n="behindTitle"></h2>
+  <div id="aboutCopy"></div>
+  <div id="referenceBlock" class="references-wrap">
+    <p class="reference-heading" data-i18n="references">Reference</p>
+    <div class="sources">
+      <a href="https://doi.org/10.4435/BSPI.2024.08" target="_blank" rel="noopener noreferrer">Cau 2024 ↗</a>
+      <a href="https://doi.org/10.1038/32884" target="_blank" rel="noopener noreferrer">Dal Sasso & Signore 1998 ↗</a>
+      <a href="https://www.researchgate.net/publication/285869244_Theropod_footprints_in_the_Cretaceous_Adriatic-Dinaric_carbonate_platform_Italy_and_Croatia" target="_blank" rel="noopener noreferrer">Dalla Vecchia 1998 ↗</a>
+      <a href="https://doi.org/10.1111/sed.13146" target="_blank" rel="noopener noreferrer">Graziano et al. 2024 ↗</a>
+      <a href="https://doi.org/10.13130/2039-4942/6364" target="_blank" rel="noopener noreferrer">Mezga et al. 2007 ↗</a>
+      <a href="https://doi.org/10.1111/evo.12988" target="_blank" rel="noopener noreferrer">Riede et al. 2016 ↗</a>
+      <a href="https://doi.org/10.1038/s42003-023-04513-x" target="_blank" rel="noopener noreferrer">Yoshida et al. 2023 ↗</a>
+      <a href="https://doi.org/10.7717/peerj.19664" target="_blank" rel="noopener noreferrer">Yang et al. 2025 ↗</a>
+    </div>
+  </div>
+  <p class="detail-note" data-i18n="dossierNote"></p>
+  <p class="detail-note"><a href="./legacy-hiro.html" data-i18n="legacy">Raniji AR.js / HIRO prototip ↗</a></p>
 </section>
 </main>
-<footer><span>Autorski WebAR rad · Miljenka Ćurković</span><span>Kredna obala istarskog arhipelaga</span></footer></div>
-<div id="arMode" class="ar-mode" hidden><div class="ar-top"><div><span class="eyebrow">AUTORSKA REKONSTRUKCIJA</span><p>Kredna Istra · vremenski prozor u paleoobalu</p></div><button id="exitAR" class="icon-button ar-close" type="button"><svg><use href="#i-close"/></svg></button></div><div id="portal" class="portal"><video id="arVideo" playsinline webkit-playsinline preload="metadata" muted><source src="./Cretaceous_teropod.mp4?v=20260912c" type="video/mp4"></video><span class="portal-label">KREDNA ISTRA · PALEOOBALA</span></div><div class="ar-bottom"><div class="ar-mode-switch"><span>Vremenski prozor</span><span>→</span><a href="./spatial-v2.html">Prostorni kronovizor</a></div><p class="ar-prompt">Pomaknite vremenski prozor prstom. Za prostorni prikaz odaberite „Prostorni kronovizor”.</p><div class="ar-controls"><button id="arPlay" class="icon-button" type="button"><svg><use href="#i-play"/></svg></button><button id="arReplay" class="icon-button" type="button"><svg><use href="#i-reset"/></svg></button><button id="arSound" class="icon-button" type="button"><svg><use href="#i-mute"/></svg></button><label class="scale-control">Veličina<input id="portalScale" type="range" min="0.55" max="1.45" step="0.05" value="1"></label></div></div></div>
+
+<footer><span data-i18n="footer1">Autorski WebAR rad · Miljenka Ćurković</span><span data-i18n="footer2">Kredna obala istarskog arhipelaga</span></footer>
+</div>
+
+<div id="arMode" class="ar-mode" hidden>
+  <div class="ar-top"><div><span class="eyebrow" data-i18n="frameRight">AUTORSKA REKONSTRUKCIJA</span><p data-i18n="arTitle">Kredna Istra · vremenski prozor u paleoobalu</p></div><button id="exitAR" class="icon-button ar-close" type="button"><svg><use href="#i-close"/></svg></button></div>
+  <div id="portal" class="portal"><video id="arVideo" playsinline webkit-playsinline preload="metadata" muted><source src="./Cretaceous_teropod.mp4?v=20260912d" type="video/mp4"></video><span class="portal-label" data-i18n="frameLeft">KREDNA ISTRA · PALEOOBALA</span></div>
+  <div class="ar-bottom"><div class="ar-mode-switch"><span data-i18n="timeWindow">Vremenski prozor</span><span>→</span><a id="arSpatialLink" href="./spatial-v2.html" data-i18n="spatial">Prostorni kronovizor</a></div><p class="ar-prompt" data-i18n="arPrompt"></p><div class="ar-controls"><button id="arPlay" class="icon-button" type="button"><svg><use href="#i-play"/></svg></button><button id="arReplay" class="icon-button" type="button"><svg><use href="#i-reset"/></svg></button><button id="arSound" class="icon-button" type="button"><svg><use href="#i-mute"/></svg></button><label class="scale-control"><span data-i18n="size">Veličina</span><input id="portalScale" type="range" min="0.55" max="1.45" step="0.05" value="1"></label></div></div>
+</div>
 </div>
 </body></html>
