@@ -6,15 +6,14 @@
   <meta name="theme-color" content="#121b16">
   <meta name="description" content="WebAR paleookolišna interpretacija kredne obale istarskog dijela Jadransko-dinaridske karbonatne platforme.">
   <title>Kredna obala Istre · Kronovizor</title>
-  <link rel="stylesheet" href="./styles.css?v=2">
-  <script defer src="./app.js?v=2"></script>
-  <script defer src="./mode-toggle.js?v=1"></script>
+  <link rel="stylesheet" href="./styles.css?v=3">
+  <script defer src="./app.js?v=3"></script>
+  <script defer src="./mode-toggle.js?v=2"></script>
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" class="icon-defs" aria-hidden="true"><defs>
 <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z"/></symbol><symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol><symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h4l2-3h4l2 3h4v13H4Z"/><circle cx="12" cy="13" r="4"/></symbol><symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 4 6 8H3v8h3l5 4ZM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol><symbol id="i-mute" viewBox="0 0 24 24"><path d="M11 4 6 8H3v8h3l5 4Zm5 5 6 6m0-6-6 6"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol><symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-11v1"/></symbol>
 </defs></svg>
-
 <div id="experience">
 <video id="cameraFeed" playsinline muted autoplay aria-hidden="true" hidden></video>
 <div id="page">
@@ -26,16 +25,14 @@
     <button id="aboutButton" class="quiet" type="button"><svg><use href="#i-info"/></svg><span data-i18n="aboutButton">O rekonstrukciji</span></button>
   </div>
 </header>
-
 <main>
 <section class="intro">
   <p class="eyebrow" data-i18n="eyebrow">ISTRA · KREDA · JADRANSKO-DINARIDSKA KARBONATNA PLATFORMA</p>
   <h1 data-i18n-html="title">Obala svijeta <em>dinosaura.</em></h1>
   <p class="lead" data-i18n="lead">Autorska paleookolišna WebAR interpretacija krednog istarskog arhipelaga.</p>
-  <p class="context" data-i18n="context"></p>
+  <p id="context" class="context"></p>
   <p class="source-line"><strong>Miljenka Ćurković</strong> · <span data-i18n="sourceLine">paleobiološka interpretacija + WebAR</span></p>
 </section>
-
 <section class="viewer" aria-label="Rekonstrukcijski prizor">
   <div class="media-frame">
     <video id="storyVideo" playsinline webkit-playsinline preload="metadata"><source src="./Cretaceous_teropod.mp4?v=20260912d" type="video/mp4"></video>
@@ -49,13 +46,11 @@
     <button id="soundButton" class="icon-button" type="button"><svg><use href="#i-mute"/></svg></button><button id="fullscreenButton" class="icon-button" type="button"><svg><use href="#i-expand"/></svg></button>
   </div>
 </section>
-
 <section class="interpretation">
   <p class="eyebrow" data-i18n="whatEyebrow">ŠTO GLEDAMO?</p>
-  <h2 data-i18n="whatTitle"></h2>
+  <h2 id="whatTitle"></h2>
   <div id="interpretationCopy"></div>
 </section>
-
 <div class="actions">
   <button id="enterAR" class="primary" type="button"><svg><use href="#i-camera"/></svg><span data-i18n="openCamera">Otvori kameru</span></button>
   <a id="spatialLink" class="secondary" href="./spatial-v2.html" data-i18n="spatial">Prostorni kronovizor</a>
@@ -63,10 +58,9 @@
 </div>
 <div class="mode-guide"><span class="guide-step" data-i18n="guide1">1 · Otvori kameru</span><span class="guide-arrow">→</span><span class="guide-step" data-i18n="guide2">2 · Prostorni kronovizor</span></div>
 <p class="support-hint" data-i18n-html="support"></p><p id="status" class="status" role="status" aria-live="polite"></p>
-
 <section id="aboutPanel" class="about-panel">
   <p class="eyebrow" data-i18n="behindEyebrow">IZA VREMENSKOG PROZORA</p>
-  <h2 data-i18n="behindTitle"></h2>
+  <h2 id="behindTitle"></h2>
   <div id="aboutCopy"></div>
   <div id="referenceBlock" class="references-wrap">
     <p class="reference-heading" data-i18n="references">Reference</p>
@@ -81,14 +75,12 @@
       <a href="https://doi.org/10.7717/peerj.19664" target="_blank" rel="noopener noreferrer">Yang et al. 2025 ↗</a>
     </div>
   </div>
-  <p class="detail-note" data-i18n="dossierNote"></p>
+  <p id="dossierNote" class="detail-note"></p>
   <p class="detail-note"><a href="./legacy-hiro.html" data-i18n="legacy">Raniji AR.js / HIRO prototip ↗</a></p>
 </section>
 </main>
-
 <footer><span data-i18n="footer1">Autorski WebAR rad · Miljenka Ćurković</span><span data-i18n="footer2">Kredna obala istarskog arhipelaga</span></footer>
 </div>
-
 <div id="arMode" class="ar-mode" hidden>
   <div class="ar-top"><div><span class="eyebrow" data-i18n="frameRight">AUTORSKA REKONSTRUKCIJA</span><p data-i18n="arTitle">Kredna Istra · vremenski prozor u paleoobalu</p></div><button id="exitAR" class="icon-button ar-close" type="button"><svg><use href="#i-close"/></svg></button></div>
   <div id="portal" class="portal"><video id="arVideo" playsinline webkit-playsinline preload="metadata" muted><source src="./Cretaceous_teropod.mp4?v=20260912d" type="video/mp4"></video><span class="portal-label" data-i18n="frameLeft">KREDNA ISTRA · PALEOOBALA</span></div>
