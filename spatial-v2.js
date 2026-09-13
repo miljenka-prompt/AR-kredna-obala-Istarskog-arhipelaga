@@ -51,74 +51,75 @@ function softShadowTexture() {
   return new THREE.CanvasTexture(canvas)
 }
 
-function irregularPatchGeometry(rx = 1.65, rz = 1.15) {
-  const shape = new THREE.Shape()
-  const pts = [
-    [-1.00, 0.00], [-0.82, 0.48], [-0.38, 0.78], [0.12, 0.72],
-    [0.70, 0.48], [1.00, 0.05], [0.82, -0.48], [0.30, -0.78],
-    [-0.28, -0.72], [-0.78, -0.42],
-  ]
-  pts.forEach(([x, z], i) => {
-    const px = x * rx
-    const pz = z * rz
-    if (i === 0) shape.moveTo(px, pz)
-    else shape.lineTo(px, pz)
-  })
-  shape.closePath()
-  return new THREE.ShapeGeometry(shape)
+function softGroundTexture(center = 'rgba(205,190,154,.28)', edge = 'rgba(205,190,154,0)') {
+  const canvas = document.createElement('canvas')
+  canvas.width = 512
+  canvas.height = 512
+  const ctx = canvas.getContext('2d')
+  const g = ctx.createRadialGradient(256, 256, 40, 256, 256, 250)
+  g.addColorStop(0, center)
+  g.addColorStop(.55, 'rgba(205,190,154,.16)')
+  g.addColorStop(1, edge)
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 512, 512)
+  for (let i = 0; i < 180; i++) {
+    const x = Math.random() * 512
+    const y = Math.random() * 512
+    const r = 0.5 + Math.random() * 2.4
+    ctx.fillStyle = `rgba(235,226,199,${0.018 + Math.random() * 0.035})`
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill()
+  }
+  const tex = new THREE.CanvasTexture(canvas)
+  tex.colorSpace = THREE.SRGBColorSpace
+  return tex
+}
+
+function lagoonTexture() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 512
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')
+  const g = ctx.createRadialGradient(260, 130, 10, 260, 130, 235)
+  g.addColorStop(0, 'rgba(115,190,186,.22)')
+  g.addColorStop(.55, 'rgba(115,190,186,.11)')
+  g.addColorStop(1, 'rgba(115,190,186,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 512, 256)
+  return new THREE.CanvasTexture(canvas)
 }
 
 function buildEnvironment(scene) {
   const env = new THREE.Group()
   env.position.set(0, 0, -1.5)
 
-  const ground = new THREE.Mesh(
-    irregularPatchGeometry(1.75, 1.12),
-    new THREE.MeshStandardMaterial({color: 0xd8c9a4, roughness: 1, metalness: 0, transparent: true, opacity: 0.88})
+  const trace = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.8, 1.8),
+    new THREE.MeshBasicMaterial({map: softGroundTexture(), transparent: true, depthWrite: false, toneMapped: false})
   )
-  ground.rotation.x = -Math.PI / 2
-  ground.position.y = 0.004
-  env.add(ground)
+  trace.rotation.x = -Math.PI / 2
+  trace.position.y = 0.006
+  env.add(trace)
 
   const lagoon = new THREE.Mesh(
-    new THREE.CircleGeometry(0.72, 40),
-    new THREE.MeshStandardMaterial({color: 0x78c7c2, roughness: 0.28, metalness: 0, transparent: true, opacity: 0.48, depthWrite: false})
+    new THREE.PlaneGeometry(1.5, .72),
+    new THREE.MeshBasicMaterial({map: lagoonTexture(), transparent: true, depthWrite: false, toneMapped: false})
   )
   lagoon.rotation.x = -Math.PI / 2
-  lagoon.scale.set(1.35, 0.62, 1)
-  lagoon.position.set(0.74, 0.012, -0.26)
+  lagoon.position.set(.72, .009, -.32)
+  lagoon.rotation.z = -.16
   env.add(lagoon)
 
-  const rockMat = new THREE.MeshStandardMaterial({color: 0xb7aa88, roughness: 1, flatShading: true})
+  const rockMat = new THREE.MeshStandardMaterial({color: 0xb5aa91, roughness: .96, metalness: 0})
   ;[
-    [-0.86, 0.10, -0.18, 0.18],
-    [0.18, 0.08, 0.58, 0.13],
-    [0.94, 0.07, 0.26, 0.11],
-  ].forEach(([x, y, z, s], i) => {
-    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), rockMat)
-    rock.scale.y = 0.55 + i * 0.08
-    rock.rotation.set(0.2 * i, 0.55 * i, 0.12)
+    [-.78, .055, .22, .13, .72, 1.15],
+    [.35, .04, .48, .09, .62, 1.3],
+    [1.00, .035, .15, .07, .55, 1.25],
+  ].forEach(([x, y, z, s, sy, sx], i) => {
+    const rock = new THREE.Mesh(new THREE.SphereGeometry(s, 14, 9), rockMat)
+    rock.scale.set(sx, sy, .9 + i * .08)
+    rock.rotation.y = i * .73
     rock.position.set(x, y, z)
     env.add(rock)
-  })
-
-  const plantMat = new THREE.MeshStandardMaterial({color: 0x61765b, roughness: 1, flatShading: true})
-  ;[
-    [-0.62, 0.10, 0.52],
-    [-1.08, 0.08, 0.18],
-    [0.18, 0.07, -0.64],
-    [0.62, 0.06, -0.58],
-  ].forEach(([x, y, z], i) => {
-    const plant = new THREE.Group()
-    for (let j = 0; j < 3; j++) {
-      const blade = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.24 + j * 0.035, 4), plantMat)
-      blade.position.set((j - 1) * 0.045, 0.11 + j * 0.012, 0)
-      blade.rotation.z = (j - 1) * 0.32
-      plant.add(blade)
-    }
-    plant.scale.setScalar(0.78 + i * 0.07)
-    plant.position.set(x, y, z)
-    env.add(plant)
   })
 
   scene.add(env)
@@ -235,12 +236,12 @@ function buildFigure(scene) {
 }
 
 const spatialModule = () => ({
-  name: 'cretaceous-theropod-spatial-chronovisor-v2',
+  name: 'cretaceous-theropod-spatial-chronovisor-v3',
   onStart: ({canvas}) => {
     const {scene, camera} = XR8.Threejs.xrScene()
     xrCamera = camera
-    scene.add(new THREE.HemisphereLight(0xe9f2ff, 0x665c49, 1.35))
-    const sun = new THREE.DirectionalLight(0xffffff, 0.75)
+    scene.add(new THREE.HemisphereLight(0xe9f2ff, 0x665c49, 1.15))
+    const sun = new THREE.DirectionalLight(0xffffff, 0.58)
     sun.position.set(-2, 4, 2)
     scene.add(sun)
     buildEnvironment(scene)
