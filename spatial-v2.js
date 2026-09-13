@@ -51,6 +51,79 @@ function softShadowTexture() {
   return new THREE.CanvasTexture(canvas)
 }
 
+function irregularPatchGeometry(rx = 1.65, rz = 1.15) {
+  const shape = new THREE.Shape()
+  const pts = [
+    [-1.00, 0.00], [-0.82, 0.48], [-0.38, 0.78], [0.12, 0.72],
+    [0.70, 0.48], [1.00, 0.05], [0.82, -0.48], [0.30, -0.78],
+    [-0.28, -0.72], [-0.78, -0.42],
+  ]
+  pts.forEach(([x, z], i) => {
+    const px = x * rx
+    const pz = z * rz
+    if (i === 0) shape.moveTo(px, pz)
+    else shape.lineTo(px, pz)
+  })
+  shape.closePath()
+  return new THREE.ShapeGeometry(shape)
+}
+
+function buildEnvironment(scene) {
+  const env = new THREE.Group()
+  env.position.set(0, 0, -1.5)
+
+  const ground = new THREE.Mesh(
+    irregularPatchGeometry(1.75, 1.12),
+    new THREE.MeshStandardMaterial({color: 0xd8c9a4, roughness: 1, metalness: 0, transparent: true, opacity: 0.88})
+  )
+  ground.rotation.x = -Math.PI / 2
+  ground.position.y = 0.004
+  env.add(ground)
+
+  const lagoon = new THREE.Mesh(
+    new THREE.CircleGeometry(0.72, 40),
+    new THREE.MeshStandardMaterial({color: 0x78c7c2, roughness: 0.28, metalness: 0, transparent: true, opacity: 0.48, depthWrite: false})
+  )
+  lagoon.rotation.x = -Math.PI / 2
+  lagoon.scale.set(1.35, 0.62, 1)
+  lagoon.position.set(0.74, 0.012, -0.26)
+  env.add(lagoon)
+
+  const rockMat = new THREE.MeshStandardMaterial({color: 0xb7aa88, roughness: 1, flatShading: true})
+  ;[
+    [-0.86, 0.10, -0.18, 0.18],
+    [0.18, 0.08, 0.58, 0.13],
+    [0.94, 0.07, 0.26, 0.11],
+  ].forEach(([x, y, z, s], i) => {
+    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), rockMat)
+    rock.scale.y = 0.55 + i * 0.08
+    rock.rotation.set(0.2 * i, 0.55 * i, 0.12)
+    rock.position.set(x, y, z)
+    env.add(rock)
+  })
+
+  const plantMat = new THREE.MeshStandardMaterial({color: 0x61765b, roughness: 1, flatShading: true})
+  ;[
+    [-0.62, 0.10, 0.52],
+    [-1.08, 0.08, 0.18],
+    [0.18, 0.07, -0.64],
+    [0.62, 0.06, -0.58],
+  ].forEach(([x, y, z], i) => {
+    const plant = new THREE.Group()
+    for (let j = 0; j < 3; j++) {
+      const blade = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.24 + j * 0.035, 4), plantMat)
+      blade.position.set((j - 1) * 0.045, 0.11 + j * 0.012, 0)
+      blade.rotation.z = (j - 1) * 0.32
+      plant.add(blade)
+    }
+    plant.scale.setScalar(0.78 + i * 0.07)
+    plant.position.set(x, y, z)
+    env.add(plant)
+  })
+
+  scene.add(env)
+}
+
 function alphaMaterial(rgbMap, maskMap) {
   return new THREE.ShaderMaterial({
     uniforms: {
@@ -131,7 +204,8 @@ function buildFigure(scene) {
     new THREE.MeshBasicMaterial({map: softShadowTexture(), transparent: true, depthWrite: false, toneMapped: false})
   )
   shadow.rotation.x = -Math.PI / 2
-  shadow.position.set(0, .012, -1.5)
+  shadow.position.set(0, .018, -1.5)
+  shadow.renderOrder = 1
   scene.add(shadow)
 
   let rgbReady = false
@@ -161,10 +235,15 @@ function buildFigure(scene) {
 }
 
 const spatialModule = () => ({
-  name: 'cretaceous-theropod-spatial-chronovisor-v1',
+  name: 'cretaceous-theropod-spatial-chronovisor-v2',
   onStart: ({canvas}) => {
     const {scene, camera} = XR8.Threejs.xrScene()
     xrCamera = camera
+    scene.add(new THREE.HemisphereLight(0xe9f2ff, 0x665c49, 1.35))
+    const sun = new THREE.DirectionalLight(0xffffff, 0.75)
+    sun.position.set(-2, 4, 2)
+    scene.add(sun)
+    buildEnvironment(scene)
     buildFigure(scene)
     camera.position.set(0, 1.6, 2.5)
     XR8.XrController.updateCameraProjectionMatrix({origin: camera.position, facing: camera.quaternion})
