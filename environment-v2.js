@@ -149,7 +149,7 @@ function theropodMaterial(rgbMap, maskMap) {
   return new THREE.ShaderMaterial({
     uniforms: {rgbMap: {value: rgbMap}, maskMap: {value: maskMap}},
     vertexShader: 'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader: 'uniform sampler2D rgbMap;uniform sampler2D maskMap;varying vec2 vUv;void main(){vec4 c=texture2D(rgbMap,vUv);float a=smoothstep(.08,1.,texture2D(maskMap,vUv).r*1.15);if(a<.015)discard;gl_FragColor=vec4(c.rgb,a);}',
+    fragmentShader: 'uniform sampler2D rgbMap;uniform sampler2D maskMap;varying vec2 vUv;void main(){vec4 c=texture2D(rgbMap,vUv);vec2 px=vec2(.0065,.0115);float m=texture2D(maskMap,vUv).r;m=max(m,texture2D(maskMap,vUv+vec2(px.x,0.)).r);m=max(m,texture2D(maskMap,vUv-vec2(px.x,0.)).r);m=max(m,texture2D(maskMap,vUv+vec2(0.,px.y)).r);m=max(m,texture2D(maskMap,vUv-vec2(0.,px.y)).r);float a=smoothstep(.08,1.,m*1.15);if(a<.015)discard;gl_FragColor=vec4(c.rgb,a);}',
     transparent: true,
     side: THREE.DoubleSide,
     depthWrite: false,
@@ -240,7 +240,13 @@ const module = () => ({
   onUpdate: () => {
     if (!figure || !xrCamera) return
     groundFigure()
-    if (Math.abs(rgbVideo.currentTime - maskVideo.currentTime) > 0.08) maskVideo.currentTime = rgbVideo.currentTime
+    const drift = rgbVideo.currentTime - maskVideo.currentTime
+    if (Math.abs(drift) > 0.045) {
+      maskVideo.currentTime = rgbVideo.currentTime
+      maskVideo.playbackRate = 1
+    } else {
+      maskVideo.playbackRate = Math.min(1.06, Math.max(.94, 1 + drift * 1.8))
+    }
     if (!sound.paused && Math.abs(rgbVideo.currentTime - sound.currentTime) > 0.12) sound.currentTime = rgbVideo.currentTime
     const figureWorld = new THREE.Vector3()
     figure.getWorldPosition(figureWorld)
