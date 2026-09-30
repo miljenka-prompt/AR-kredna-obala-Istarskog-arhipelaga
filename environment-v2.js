@@ -1,9 +1,8 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.module.js'
+import {PACKED_VIDEO_URL} from './theropod-packed-video.js?v=20260930a'
 
 window.THREE = THREE
 
-const VIDEO_URL = './Cretaceous_teropod.mp4?v=20260912'
-const MASK_URL = '/QInspired-WebAR-Tracking-Test/theropod-mask.mp4'
 const SOUND_URL = './assets/environment-v2/ambient-vocalization.m4a?v=20260930a'
 const ASSET = './assets/environment-v2/'
 const params = new URLSearchParams(location.search)
@@ -23,7 +22,6 @@ const COPY = {
 const copy = COPY[LANG]
 
 let rgbVideo = null
-let maskVideo = null
 let sound = null
 let figure = null
 let world = null
@@ -145,11 +143,11 @@ function terrain(url) {
   return mesh
 }
 
-function theropodMaterial(rgbMap, maskMap) {
+function theropodMaterial(packedMap) {
   return new THREE.ShaderMaterial({
-    uniforms: {rgbMap: {value: rgbMap}, maskMap: {value: maskMap}},
+    uniforms: {packedMap: {value: packedMap}},
     vertexShader: 'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader: 'uniform sampler2D rgbMap;uniform sampler2D maskMap;varying vec2 vUv;void main(){vec4 c=texture2D(rgbMap,vUv);vec2 px=vec2(.0065,.0115);float m=texture2D(maskMap,vUv).r;m=max(m,texture2D(maskMap,vUv+vec2(px.x,0.)).r);m=max(m,texture2D(maskMap,vUv-vec2(px.x,0.)).r);m=max(m,texture2D(maskMap,vUv+vec2(0.,px.y)).r);m=max(m,texture2D(maskMap,vUv-vec2(0.,px.y)).r);float a=smoothstep(.08,1.,m*1.15);if(a<.015)discard;gl_FragColor=vec4(c.rgb,a);}',
+    fragmentShader: 'uniform sampler2D packedMap;varying vec2 vUv;void main(){vec4 c=texture2D(packedMap,vec2(vUv.x,.5+vUv.y*.5));float m=texture2D(packedMap,vec2(vUv.x,vUv.y*.5)).r;float a=smoothstep(.08,1.,m*1.15);if(a<.015)discard;gl_FragColor=vec4(c.rgb,a);}',
     transparent: true,
     side: THREE.DoubleSide,
     depthWrite: false,
@@ -166,17 +164,13 @@ function build(scene) {
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
   terrain(`${ASSET}ground.webp`)
 
-  rgbVideo = media(VIDEO_URL)
-  maskVideo = media(MASK_URL)
+  rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
   sound.volume = 1
 
   const rgb = new THREE.VideoTexture(rgbVideo)
   rgb.colorSpace = THREE.SRGBColorSpace
-  const mask = new THREE.VideoTexture(maskVideo)
-  mask.colorSpace = THREE.NoColorSpace
-
-  figure = new THREE.Mesh(new THREE.PlaneGeometry(2.65, 1.49), theropodMaterial(rgb, mask))
+  figure = new THREE.Mesh(new THREE.PlaneGeometry(2.65, 1.49), theropodMaterial(rgb))
   figure.position.set(0, 0.745, 0)
   figure.renderOrder = 5
   world.add(figure)
@@ -200,15 +194,13 @@ function placeAt(clientX, clientY, canvas) {
 }
 
 async function playScene() {
-  maskVideo.currentTime = rgbVideo.currentTime
   sound.currentTime = rgbVideo.currentTime
-  await Promise.all([rgbVideo.play(), maskVideo.play(), sound.play()])
+  await Promise.all([rgbVideo.play(), sound.play()])
   $('video-toggle').textContent = copy.pause
 }
 
 function pauseScene() {
   rgbVideo?.pause()
-  maskVideo?.pause()
   sound?.pause()
   $('video-toggle').textContent = copy.play
 }
@@ -240,13 +232,6 @@ const module = () => ({
   onUpdate: () => {
     if (!figure || !xrCamera) return
     groundFigure()
-    const drift = rgbVideo.currentTime - maskVideo.currentTime
-    if (Math.abs(drift) > 0.045) {
-      maskVideo.currentTime = rgbVideo.currentTime
-      maskVideo.playbackRate = 1
-    } else {
-      maskVideo.playbackRate = Math.min(1.06, Math.max(.94, 1 + drift * 1.8))
-    }
     if (!sound.paused && Math.abs(rgbVideo.currentTime - sound.currentTime) > 0.12) sound.currentTime = rgbVideo.currentTime
     const figureWorld = new THREE.Vector3()
     figure.getWorldPosition(figureWorld)
