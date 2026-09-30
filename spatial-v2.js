@@ -11,6 +11,7 @@ let figure = null
 let shadow = null
 let xrCamera = null
 let statusTimer = null
+const FOOT_BOTTOM_PX = [556,585,566,562,556,570,565,560,564,557,554,573,664,652,662,651,653,659,656,652,649,643,636,627]
 
 const $ = (id) => document.getElementById(id)
 
@@ -92,6 +93,16 @@ function syncVideos() {
   if (Math.abs(rgbVideo.currentTime - maskVideo.currentTime) > 0.08) maskVideo.currentTime = rgbVideo.currentTime
 }
 
+function groundFigure() {
+  if (!figure || !rgbVideo?.duration) return
+  const frame = (rgbVideo.currentTime / rgbVideo.duration) * FOOT_BOTTOM_PX.length
+  const i = Math.floor(frame) % FOOT_BOTTOM_PX.length
+  const next = (i + 1) % FOOT_BOTTOM_PX.length
+  const mix = frame - Math.floor(frame)
+  const bottom = FOOT_BOTTOM_PX[i] * (1 - mix) + FOOT_BOTTOM_PX[next] * mix
+  figure.position.y = (bottom / 720) * 1.8 - .9 + .015
+}
+
 async function playBoth() {
   if (!rgbVideo || !maskVideo) return false
   maskVideo.currentTime = rgbVideo.currentTime
@@ -122,7 +133,7 @@ function buildFigure(scene) {
 
   const targetHeight = 1.8
   figure = new THREE.Mesh(new THREE.PlaneGeometry(3.2, targetHeight), alphaMaterial(rgbTexture, maskTexture))
-  figure.position.set(0, targetHeight / 2, -1.5)
+  figure.position.set(0, .5, -1.5)
   figure.renderOrder = 2
   scene.add(figure)
 
@@ -174,6 +185,7 @@ const spatialModule = () => ({
   onUpdate: () => {
     if (!figure || !xrCamera) return
     syncVideos()
+    groundFigure()
     const dx = xrCamera.position.x - figure.position.x
     const dz = xrCamera.position.z - figure.position.z
     figure.rotation.y = Math.atan2(dx, dz)
