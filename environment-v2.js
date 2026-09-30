@@ -6,6 +6,21 @@ const VIDEO_URL = './Cretaceous_teropod.mp4?v=20260912'
 const MASK_URL = '/QInspired-WebAR-Tracking-Test/theropod-mask.mp4'
 const SOUND_URL = './assets/environment-v2/ambient-vocalization.m4a?v=20260930a'
 const ASSET = './assets/environment-v2/'
+const params = new URLSearchParams(location.search)
+const LANG = params.get('lang') === 'en' || (!params.get('lang') && localStorage.getItem('cretaceousLang') === 'en') ? 'en' : 'hr'
+const COPY = {
+  hr: {
+    title: 'Kredni okoliš u stvarnom prostoru', mode: 'BETA · KREDNI OKOLIŠ U PROSTORU',
+    place: 'Usmjeri kameru prema podu i dodirni mjesto za prizor.', placed: 'Kredni prizor je postavljen. Dodirni drugdje za novo mjesto.',
+    hint: 'Dodirni pod gdje želiš postaviti kredni prizor', reset: 'Postavi ponovno', play: 'Pokreni prizor i zvuk', pause: 'Pauziraj prizor', blocked: 'Preglednik je blokirao reprodukciju. Dodirni tipku ponovno.',
+  },
+  en: {
+    title: 'Cretaceous environment in real space', mode: 'BETA · CRETACEOUS ENVIRONMENT IN REAL SPACE',
+    place: 'Aim the camera at the floor and tap where you want the scene.', placed: 'Cretaceous scene placed. Tap elsewhere to move it.',
+    hint: 'Tap the floor to place the Cretaceous scene', reset: 'Place again', play: 'Start scene and sound', pause: 'Pause scene', blocked: 'Playback was blocked. Tap the button again.',
+  },
+}
+const copy = COPY[LANG]
 
 let rgbVideo = null
 let maskVideo = null
@@ -13,6 +28,10 @@ let sound = null
 let figure = null
 let world = null
 let xrCamera = null
+let placed = false
+const raycaster = new THREE.Raycaster()
+const pointer = new THREE.Vector2()
+const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
 
 const $ = (id) => document.getElementById(id)
 
@@ -82,9 +101,11 @@ function fadedMaterial(url, opacity, edge = .13) {
       varying vec2 vUv;
       void main(){
         vec4 c=texture2D(map,vUv);
-        float fx=smoothstep(0.0,edge,vUv.x)*smoothstep(0.0,edge,1.0-vUv.x);
-        float fy=smoothstep(0.0,edge,vUv.y)*smoothstep(0.0,edge,1.0-vUv.y);
-        float a=opacity*fx*fy;
+        vec2 d=(vUv-.5)/.5;
+        float radial=1.0-smoothstep(1.0-edge,1.0,length(d));
+        float nearWeight=1.0-smoothstep(.25,.9,vUv.y);
+        float density=mix(.72,1.0,nearWeight);
+        float a=opacity*radial*density;
         if(a<.01)discard;
         gl_FragColor=vec4(c.rgb,a);
       }
@@ -94,17 +115,6 @@ function fadedMaterial(url, opacity, edge = .13) {
     side: THREE.DoubleSide,
     toneMapped: false,
   })
-}
-
-function atmosphere(url) {
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(8.6, 3.7),
-    fadedMaterial(url, .18, .24)
-  )
-  mesh.position.set(0, 1.85, -5.6)
-  mesh.renderOrder = 0
-  world.add(mesh)
-  return mesh
 }
 
 function terrain(url) {
@@ -124,11 +134,11 @@ function terrain(url) {
   positions.needsUpdate = true
   geometry.computeVertexNormals()
 
-  const material = fadedMaterial(url, .46, .24)
+  const material = fadedMaterial(url, .62, .32)
   const mesh = new THREE.Mesh(geometry, material)
   mesh.rotation.x = -Math.PI / 2
-  mesh.scale.set(.72, .72, .72)
-  mesh.position.set(0, -.03, -1.8)
+  mesh.scale.set(.58, .58, .58)
+  mesh.position.set(0, -.03, 0)
   mesh.renderOrder = 1
   world.add(mesh)
   return mesh
@@ -148,11 +158,11 @@ function theropodMaterial(rgbMap, maskMap) {
 
 function build(scene) {
   world = new THREE.Group()
-  world.position.set(0, 0, -0.35)
+  world.position.set(0, 0, -2.35)
+  world.visible = false
   scene.add(world)
 
-  // Prostor kamere ostaje vidljiv; rekonstrukcija je samo prozirni vremenski sloj.
-  atmosphere(`${ASSET}horizon.webp`)
+  // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
   terrain(`${ASSET}ground.webp`)
 
   rgbVideo = media(VIDEO_URL)
@@ -166,25 +176,40 @@ function build(scene) {
   mask.colorSpace = THREE.NoColorSpace
 
   figure = new THREE.Mesh(new THREE.PlaneGeometry(2.65, 1.49), theropodMaterial(rgb, mask))
-  figure.position.set(0, 0.745, -1.85)
+  figure.position.set(0, 0.745, 0)
   figure.renderOrder = 5
   world.add(figure)
 
-  setStatus('Kredni sloj je usidren u stvarnom prostoru. Pokreni prizor i zvuk.')
+  setStatus(copy.place)
+}
+
+function placeAt(clientX, clientY, canvas) {
+  if (!world || !xrCamera) return
+  const rect = canvas.getBoundingClientRect()
+  pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1
+  pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1
+  raycaster.setFromCamera(pointer, xrCamera)
+  const hit = new THREE.Vector3()
+  if (!raycaster.ray.intersectPlane(floorPlane, hit)) return
+  world.position.set(hit.x, 0, hit.z)
+  world.visible = true
+  placed = true
+  $('placement-hint')?.classList.add('is-hidden')
+  setStatus(copy.placed)
 }
 
 async function playScene() {
   maskVideo.currentTime = rgbVideo.currentTime
   sound.currentTime = rgbVideo.currentTime
   await Promise.all([rgbVideo.play(), maskVideo.play(), sound.play()])
-  $('video-toggle').textContent = 'Pauziraj prizor'
+  $('video-toggle').textContent = copy.pause
 }
 
 function pauseScene() {
   rgbVideo?.pause()
   maskVideo?.pause()
   sound?.pause()
-  $('video-toggle').textContent = 'Pokreni prizor i zvuk'
+  $('video-toggle').textContent = copy.play
 }
 
 const module = () => ({
@@ -196,6 +221,10 @@ const module = () => ({
     camera.position.set(0, 1.6, 2.5)
     XR8.XrController.updateCameraProjectionMatrix({origin: camera.position, facing: camera.quaternion})
     canvas.addEventListener('touchmove', (event) => event.preventDefault(), {passive: false})
+    canvas.addEventListener('pointerup', (event) => {
+      if (event.target !== canvas) return
+      placeAt(event.clientX, event.clientY, canvas)
+    })
   },
   onUpdate: () => {
     if (!figure || !xrCamera) return
@@ -219,15 +248,29 @@ function start() {
     module(),
   ])
   XR8.run({canvas: $('camerafeed')})
-  $('recenter').addEventListener('click', () => XR8.XrController.recenter())
+  $('recenter').addEventListener('click', () => {
+    placed = false
+    if (world) world.visible = false
+    $('placement-hint')?.classList.remove('is-hidden')
+    setStatus(copy.place)
+  })
   $('video-toggle').addEventListener('click', async () => {
     try {
       if (rgbVideo?.paused) await playScene()
       else pauseScene()
     } catch {
-      setStatus('Preglednik je blokirao reprodukciju. Dodirni tipku ponovno.')
+      setStatus(copy.blocked)
     }
   })
 }
+
+document.documentElement.lang = LANG
+document.title = copy.title
+$('scene-title').textContent = copy.title
+$('mode-label').textContent = copy.mode
+$('status').textContent = copy.place
+$('placement-hint').textContent = copy.hint
+$('recenter').textContent = copy.reset
+$('video-toggle').textContent = copy.play
 
 window.XR8 ? start() : window.addEventListener('xrloaded', start)
