@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d1511">
+  <meta name="description" content="Eksperimentalni 2.5D okoliš kredne obale uz postojeći prostorni prikaz teropoda.">
+  <title>Kredna obala · Slojeviti okoliš</title>
+  <script src="https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1/dist/xr.js" async crossorigin="anonymous" data-preload-chunks="slam"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@8thwall/xrextras@1/dist/xrextras.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@8thwall/landing-page@1/dist/landing-page.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="./spatial.css?v=1">
+  <style>
+    .test{position:fixed;left:12px;bottom:76px;z-index:20;padding:7px 10px;border-radius:12px;background:#07100dcc;color:#fff;font:12px system-ui}
+    .test b{color:#c7d29a}
+  </style>
+</head>
+<body>
+  <canvas id="camerafeed"></canvas>
+  <div id="hud">
+    <div class="top-row">
+      <a class="back" href="./spatial-v2.html">← Izvorni spatial</a>
+      <div class="pill">EKSPERIMENT · SLOJEVITI OKOLIŠ</div>
+    </div>
+    <div class="status-card">
+      <strong>Kredna obala · 2.5D prostorni test</strong>
+      <div id="status">Uspostavljam okoliš…</div>
+    </div>
+    <div class="actions">
+      <button id="recenter" type="button">Ponovno usidri</button>
+      <button id="video-toggle" type="button">Pokreni prizor i zvuk</button>
+    </div>
+  </div>
+  <div class="test"><b>TEST V2</b> · horizont, tlo, lokvice, cikasa i stijene odvojeni su po dubini</div>
+  <script type="module" src="./environment-v2.js?v=20260930a"></script>
+</body>
+</html>
