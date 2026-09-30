@@ -32,6 +32,7 @@ let placed = false
 const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
 const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
+const FOOT_BOTTOM_PX = [556,585,566,562,556,570,565,560,564,557,554,573,664,652,662,651,653,659,656,652,649,643,636,627]
 
 const $ = (id) => document.getElementById(id)
 
@@ -212,6 +213,16 @@ function pauseScene() {
   $('video-toggle').textContent = copy.play
 }
 
+function groundFigure() {
+  if (!figure || !rgbVideo?.duration) return
+  const frame = (rgbVideo.currentTime / rgbVideo.duration) * FOOT_BOTTOM_PX.length
+  const i = Math.floor(frame) % FOOT_BOTTOM_PX.length
+  const next = (i + 1) % FOOT_BOTTOM_PX.length
+  const mix = frame - Math.floor(frame)
+  const bottom = FOOT_BOTTOM_PX[i] * (1 - mix) + FOOT_BOTTOM_PX[next] * mix
+  figure.position.y = (bottom / 720) * 1.49 - .745 + .012
+}
+
 const module = () => ({
   name: 'cretaceous-layered-environment-v2',
   onStart: ({canvas}) => {
@@ -228,6 +239,7 @@ const module = () => ({
   },
   onUpdate: () => {
     if (!figure || !xrCamera) return
+    groundFigure()
     if (Math.abs(rgbVideo.currentTime - maskVideo.currentTime) > 0.08) maskVideo.currentTime = rgbVideo.currentTime
     if (!sound.paused && Math.abs(rgbVideo.currentTime - sound.currentTime) > 0.12) sound.currentTime = rgbVideo.currentTime
     const figureWorld = new THREE.Vector3()
