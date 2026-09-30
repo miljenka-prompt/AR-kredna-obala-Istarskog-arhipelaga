@@ -61,6 +61,53 @@ function layer(url, width, height, x, y, z, options = {}) {
   return mesh
 }
 
+function terrain(url) {
+  const geometry = new THREE.PlaneGeometry(12, 12, 48, 48)
+  const positions = geometry.attributes.position
+  for (let i = 0; i < positions.count; i += 1) {
+    const x = positions.getX(i)
+    const forward = positions.getY(i)
+    const edge = Math.min(1, Math.max(0, (forward + 6) / 2.4))
+    const relief = (
+      Math.sin(x * 1.7 + forward * .42) * .055 +
+      Math.sin(x * 3.9 - forward * 1.25) * .022 +
+      Math.cos(forward * 2.1) * .028
+    ) * edge
+    positions.setZ(i, relief)
+  }
+  positions.needsUpdate = true
+  geometry.computeVertexNormals()
+
+  const material = new THREE.MeshStandardMaterial({
+    map: texture(url),
+    roughness: .96,
+    metalness: 0,
+    side: THREE.DoubleSide,
+  })
+  const mesh = new THREE.Mesh(geometry, material)
+  mesh.rotation.x = -Math.PI / 2
+  mesh.position.set(0, -.03, -2.45)
+  mesh.receiveShadow = true
+  world.add(mesh)
+  return mesh
+}
+
+function water() {
+  const material = new THREE.MeshStandardMaterial({
+    color: 0x66cbd0,
+    transparent: true,
+    opacity: .48,
+    roughness: .28,
+    metalness: .08,
+    side: THREE.DoubleSide,
+  })
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(13, 7), material)
+  mesh.rotation.x = -Math.PI / 2
+  mesh.position.set(0, .035, -8.4)
+  world.add(mesh)
+  return mesh
+}
+
 function theropodMaterial(rgbMap, maskMap) {
   return new THREE.ShaderMaterial({
     uniforms: {rgbMap: {value: rgbMap}, maskMap: {value: maskMap}},
@@ -78,12 +125,15 @@ function build(scene) {
   world.position.set(0, 0, -0.35)
   scene.add(world)
 
-  // Daleki dijelovi ostaju mirni; bliži alfa-slojevi stvaraju paralaksu.
-  layer(`${ASSET}horizon.webp`, 8.4, 3.15, 0, 2.2, -5.8)
-  layer(`${ASSET}ground.webp`, 7.7, 5.4, 0, 0.005, -2.65, {floor: true})
-  layer(`${ASSET}tide-pools.webp`, 4.25, 1.55, 0.65, 0.025, -1.75, {floor: true, transparent: true, depthWrite: false, order: 2})
-  layer(`${ASSET}cycad.webp`, 2.1, 1.7, -2.15, 0.82, -1.05, {transparent: true, order: 6})
-  layer(`${ASSET}right-rocks.webp`, 2.8, 1.45, 2.0, 0.72, -3.05, {transparent: true, order: 3})
+  // Jedan kontinuirani reljef zamjenjuje kartonske alfa-plohe.
+  scene.add(new THREE.HemisphereLight(0xdff7ff, 0x786d55, 2.0))
+  const sun = new THREE.DirectionalLight(0xfff5dc, 2.1)
+  sun.position.set(-3, 7, 4)
+  scene.add(sun)
+
+  layer(`${ASSET}horizon.webp`, 14, 6.3, 0, 3.05, -9.1)
+  terrain(`${ASSET}ground.webp`)
+  water()
 
   rgbVideo = media(VIDEO_URL)
   maskVideo = media(MASK_URL)
@@ -100,7 +150,7 @@ function build(scene) {
   figure.renderOrder = 5
   world.add(figure)
 
-  setStatus('Okoliš je usidren. Dodirni “Pokreni prizor i zvuk”.')
+  setStatus('3D teren je usidren. Dodirni “Pokreni prizor i zvuk”.')
 }
 
 async function playScene() {
