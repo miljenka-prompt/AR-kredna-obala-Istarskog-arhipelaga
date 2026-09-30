@@ -61,6 +61,52 @@ function layer(url, width, height, x, y, z, options = {}) {
   return mesh
 }
 
+function fadedMaterial(url, opacity, edge = .13) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      map: {value: texture(url)},
+      opacity: {value: opacity},
+      edge: {value: edge},
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main(){
+        vUv=uv;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D map;
+      uniform float opacity;
+      uniform float edge;
+      varying vec2 vUv;
+      void main(){
+        vec4 c=texture2D(map,vUv);
+        float fx=smoothstep(0.0,edge,vUv.x)*smoothstep(0.0,edge,1.0-vUv.x);
+        float fy=smoothstep(0.0,edge,vUv.y)*smoothstep(0.0,edge,1.0-vUv.y);
+        float a=opacity*fx*fy;
+        if(a<.01)discard;
+        gl_FragColor=vec4(c.rgb,a);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  })
+}
+
+function atmosphere(url) {
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(8.6, 3.7),
+    fadedMaterial(url, .24, .18)
+  )
+  mesh.position.set(0, 1.85, -5.6)
+  mesh.renderOrder = 0
+  world.add(mesh)
+  return mesh
+}
+
 function terrain(url) {
   const geometry = new THREE.PlaneGeometry(12, 12, 48, 48)
   const positions = geometry.attributes.position
@@ -78,32 +124,12 @@ function terrain(url) {
   positions.needsUpdate = true
   geometry.computeVertexNormals()
 
-  const material = new THREE.MeshStandardMaterial({
-    map: texture(url),
-    roughness: .96,
-    metalness: 0,
-    side: THREE.DoubleSide,
-  })
+  const material = fadedMaterial(url, .56, .16)
   const mesh = new THREE.Mesh(geometry, material)
   mesh.rotation.x = -Math.PI / 2
-  mesh.position.set(0, -.03, -2.45)
-  mesh.receiveShadow = true
-  world.add(mesh)
-  return mesh
-}
-
-function water() {
-  const material = new THREE.MeshStandardMaterial({
-    color: 0x66cbd0,
-    transparent: true,
-    opacity: .48,
-    roughness: .28,
-    metalness: .08,
-    side: THREE.DoubleSide,
-  })
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(13, 7), material)
-  mesh.rotation.x = -Math.PI / 2
-  mesh.position.set(0, .035, -8.4)
+  mesh.scale.set(.72, .72, .72)
+  mesh.position.set(0, -.03, -1.8)
+  mesh.renderOrder = 1
   world.add(mesh)
   return mesh
 }
@@ -125,15 +151,9 @@ function build(scene) {
   world.position.set(0, 0, -0.35)
   scene.add(world)
 
-  // Jedan kontinuirani reljef zamjenjuje kartonske alfa-plohe.
-  scene.add(new THREE.HemisphereLight(0xdff7ff, 0x786d55, 2.0))
-  const sun = new THREE.DirectionalLight(0xfff5dc, 2.1)
-  sun.position.set(-3, 7, 4)
-  scene.add(sun)
-
-  layer(`${ASSET}horizon.webp`, 14, 6.3, 0, 3.05, -9.1)
+  // Prostor kamere ostaje vidljiv; rekonstrukcija je samo prozirni vremenski sloj.
+  atmosphere(`${ASSET}horizon.webp`)
   terrain(`${ASSET}ground.webp`)
-  water()
 
   rgbVideo = media(VIDEO_URL)
   maskVideo = media(MASK_URL)
@@ -150,7 +170,7 @@ function build(scene) {
   figure.renderOrder = 5
   world.add(figure)
 
-  setStatus('3D teren je usidren. Dodirni “Pokreni prizor i zvuk”.')
+  setStatus('Kredni sloj je usidren u stvarnom prostoru. Pokreni prizor i zvuk.')
 }
 
 async function playScene() {
