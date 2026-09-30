@@ -1,12 +1,9 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.module.js'
+import {PACKED_VIDEO_URL} from './theropod-packed-video.js?v=20260930a'
 
 window.THREE = THREE
 
-const VIDEO_URL = './Cretaceous_teropod.mp4?v=20260912'
-const MASK_URL = '/QInspired-WebAR-Tracking-Test/theropod-mask.mp4'
-
 let rgbVideo = null
-let maskVideo = null
 let figure = null
 let shadow = null
 let xrCamera = null
@@ -52,11 +49,10 @@ function softShadowTexture() {
   return new THREE.CanvasTexture(canvas)
 }
 
-function alphaMaterial(rgbMap, maskMap) {
+function alphaMaterial(packedMap) {
   return new THREE.ShaderMaterial({
     uniforms: {
-      rgbMap: {value: rgbMap},
-      maskMap: {value: maskMap},
+      packedMap: {value: packedMap},
       alphaGain: {value: 1.15},
       alphaFloor: {value: 0.08},
     },
@@ -68,19 +64,13 @@ function alphaMaterial(rgbMap, maskMap) {
       }
     `,
     fragmentShader: `
-      uniform sampler2D rgbMap;
-      uniform sampler2D maskMap;
+      uniform sampler2D packedMap;
       uniform float alphaGain;
       uniform float alphaFloor;
       varying vec2 vUv;
       void main(){
-        vec4 rgb = texture2D(rgbMap, vUv);
-        float m = texture2D(maskMap, vUv).r;
-        vec2 px = vec2(0.0065, 0.0115);
-        m = max(m, texture2D(maskMap, vUv + vec2( px.x, 0.0)).r);
-        m = max(m, texture2D(maskMap, vUv + vec2(-px.x, 0.0)).r);
-        m = max(m, texture2D(maskMap, vUv + vec2(0.0,  px.y)).r);
-        m = max(m, texture2D(maskMap, vUv + vec2(0.0, -px.y)).r);
+        vec4 rgb = texture2D(packedMap, vec2(vUv.x, .5 + vUv.y * .5));
+        float m = texture2D(packedMap, vec2(vUv.x, vUv.y * .5)).r;
         float a = smoothstep(alphaFloor, 1.0, m * alphaGain);
         if (a < 0.015) discard;
         gl_FragColor = vec4(rgb.rgb, a);
@@ -91,17 +81,6 @@ function alphaMaterial(rgbMap, maskMap) {
     depthWrite: false,
     toneMapped: false,
   })
-}
-
-function syncVideos() {
-  if (!rgbVideo || !maskVideo) return
-  const drift = rgbVideo.currentTime - maskVideo.currentTime
-  if (Math.abs(drift) > 0.045) {
-    maskVideo.currentTime = rgbVideo.currentTime
-    maskVideo.playbackRate = 1
-  } else {
-    maskVideo.playbackRate = Math.min(1.06, Math.max(.94, 1 + drift * 1.8))
-  }
 }
 
 function groundFigure() {
@@ -115,35 +94,26 @@ function groundFigure() {
 }
 
 async function playBoth() {
-  if (!rgbVideo || !maskVideo) return false
-  maskVideo.currentTime = rgbVideo.currentTime
-  await Promise.all([rgbVideo.play(), maskVideo.play()])
+  if (!rgbVideo) return false
+  await rgbVideo.play()
   return true
 }
 
 function pauseBoth() {
   rgbVideo?.pause()
-  maskVideo?.pause()
 }
 
 function buildFigure(scene) {
-  rgbVideo = makeVideo(VIDEO_URL)
-  maskVideo = makeVideo(MASK_URL)
+  rgbVideo = makeVideo(PACKED_VIDEO_URL)
 
-  const rgbTexture = new THREE.VideoTexture(rgbVideo)
-  rgbTexture.colorSpace = THREE.SRGBColorSpace
-  rgbTexture.minFilter = THREE.LinearFilter
-  rgbTexture.magFilter = THREE.LinearFilter
-  rgbTexture.generateMipmaps = false
-
-  const maskTexture = new THREE.VideoTexture(maskVideo)
-  maskTexture.colorSpace = THREE.NoColorSpace
-  maskTexture.minFilter = THREE.LinearFilter
-  maskTexture.magFilter = THREE.LinearFilter
-  maskTexture.generateMipmaps = false
+  const packedTexture = new THREE.VideoTexture(rgbVideo)
+  packedTexture.colorSpace = THREE.SRGBColorSpace
+  packedTexture.minFilter = THREE.LinearFilter
+  packedTexture.magFilter = THREE.LinearFilter
+  packedTexture.generateMipmaps = false
 
   const targetHeight = 1.8
-  figure = new THREE.Mesh(new THREE.PlaneGeometry(3.2, targetHeight), alphaMaterial(rgbTexture, maskTexture))
+  figure = new THREE.Mesh(new THREE.PlaneGeometry(3.2, targetHeight), alphaMaterial(packedTexture))
   figure.position.set(0, .5, -1.5)
   figure.renderOrder = 2
   scene.add(figure)
@@ -157,10 +127,9 @@ function buildFigure(scene) {
   scene.add(shadow)
 
   let rgbReady = false
-  let maskReady = false
   const ready = () => {
-    if (!rgbReady || !maskReady) return
-    const aspect = rgbVideo.videoWidth / rgbVideo.videoHeight
+    if (!rgbReady) return
+    const aspect = rgbVideo.videoWidth / (rgbVideo.videoHeight * .5)
     const width = targetHeight * aspect
     figure.geometry.dispose()
     figure.geometry = new THREE.PlaneGeometry(width, targetHeight)
@@ -176,10 +145,8 @@ function buildFigure(scene) {
   }
 
   rgbVideo.addEventListener('loadedmetadata', () => { rgbReady = true; ready() })
-  maskVideo.addEventListener('loadedmetadata', () => { maskReady = true; ready() })
   const error = () => setStatus('Prizor se nije učitao. Osvježi stranicu i pokušaj ponovno.')
   rgbVideo.addEventListener('error', error)
-  maskVideo.addEventListener('error', error)
 }
 
 const spatialModule = () => ({
@@ -195,7 +162,6 @@ const spatialModule = () => ({
   },
   onUpdate: () => {
     if (!figure || !xrCamera) return
-    syncVideos()
     groundFigure()
     const dx = xrCamera.position.x - figure.position.x
     const dz = xrCamera.position.z - figure.position.z
