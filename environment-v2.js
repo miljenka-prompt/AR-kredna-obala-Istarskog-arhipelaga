@@ -99,7 +99,7 @@ function fadedMaterial(url, opacity, edge = .13) {
 function atmosphere(url) {
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(8.6, 3.7),
-    fadedMaterial(url, .24, .18)
+    fadedMaterial(url, .18, .24)
   )
   mesh.position.set(0, 1.85, -5.6)
   mesh.renderOrder = 0
@@ -124,7 +124,7 @@ function terrain(url) {
   positions.needsUpdate = true
   geometry.computeVertexNormals()
 
-  const material = fadedMaterial(url, .56, .16)
+  const material = fadedMaterial(url, .46, .24)
   const mesh = new THREE.Mesh(geometry, material)
   mesh.rotation.x = -Math.PI / 2
   mesh.scale.set(.72, .72, .72)
@@ -165,8 +165,8 @@ function build(scene) {
   const mask = new THREE.VideoTexture(maskVideo)
   mask.colorSpace = THREE.NoColorSpace
 
-  figure = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.8), theropodMaterial(rgb, mask))
-  figure.position.set(0, 0.9, -1.5)
+  figure = new THREE.Mesh(new THREE.PlaneGeometry(2.65, 1.49), theropodMaterial(rgb, mask))
+  figure.position.set(0, 0.745, -1.85)
   figure.renderOrder = 5
   world.add(figure)
 
