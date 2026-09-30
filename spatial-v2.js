@@ -76,6 +76,11 @@ function alphaMaterial(rgbMap, maskMap) {
       void main(){
         vec4 rgb = texture2D(rgbMap, vUv);
         float m = texture2D(maskMap, vUv).r;
+        vec2 px = vec2(0.0065, 0.0115);
+        m = max(m, texture2D(maskMap, vUv + vec2( px.x, 0.0)).r);
+        m = max(m, texture2D(maskMap, vUv + vec2(-px.x, 0.0)).r);
+        m = max(m, texture2D(maskMap, vUv + vec2(0.0,  px.y)).r);
+        m = max(m, texture2D(maskMap, vUv + vec2(0.0, -px.y)).r);
         float a = smoothstep(alphaFloor, 1.0, m * alphaGain);
         if (a < 0.015) discard;
         gl_FragColor = vec4(rgb.rgb, a);
@@ -90,7 +95,13 @@ function alphaMaterial(rgbMap, maskMap) {
 
 function syncVideos() {
   if (!rgbVideo || !maskVideo) return
-  if (Math.abs(rgbVideo.currentTime - maskVideo.currentTime) > 0.08) maskVideo.currentTime = rgbVideo.currentTime
+  const drift = rgbVideo.currentTime - maskVideo.currentTime
+  if (Math.abs(drift) > 0.045) {
+    maskVideo.currentTime = rgbVideo.currentTime
+    maskVideo.playbackRate = 1
+  } else {
+    maskVideo.playbackRate = Math.min(1.06, Math.max(.94, 1 + drift * 1.8))
+  }
 }
 
 function groundFigure() {
