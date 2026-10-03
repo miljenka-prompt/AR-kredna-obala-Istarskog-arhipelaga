@@ -163,7 +163,7 @@ function build(scene) {
   scene.add(world)
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
-  terrain(`${ASSET}ground.webp?v=20261003b`)
+  terrain(`${ASSET}ground.webp?v=20261003c`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
