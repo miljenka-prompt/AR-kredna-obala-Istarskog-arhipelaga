@@ -105,7 +105,9 @@ function fadedMaterial(url, opacity, edge = .13) {
         float radial=1.0-smoothstep(1.0-edge,1.0,length(d));
         float nearWeight=1.0-smoothstep(.25,.9,vUv.y);
         float density=mix(.72,1.0,nearWeight);
-        float a=opacity*radial*density;
+        float water=smoothstep(.03,.20,min(c.g-c.r,c.b-c.r));
+        float localOpacity=mix(opacity,min(1.0,opacity+.14),water);
+        float a=localOpacity*radial*density;
         if(a<.01)discard;
         gl_FragColor=vec4(c.rgb,a);
       }
@@ -163,7 +165,7 @@ function build(scene) {
   scene.add(world)
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
-  terrain(`${ASSET}ground-square-v2.webp?v=20261003d`)
+  terrain(`${ASSET}ground-square-v3.webp?v=20261003e`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
