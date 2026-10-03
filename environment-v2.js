@@ -133,7 +133,7 @@ function terrain(url) {
   positions.needsUpdate = true
   geometry.computeVertexNormals()
 
-  const material = fadedMaterial(url, .62, .32)
+  const material = fadedMaterial(url, .78, .32)
   const mesh = new THREE.Mesh(geometry, material)
   mesh.rotation.x = -Math.PI / 2
   mesh.scale.set(.58, .58, .58)
