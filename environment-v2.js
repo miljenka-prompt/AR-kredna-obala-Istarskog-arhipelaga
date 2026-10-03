@@ -3,7 +3,7 @@ import {PACKED_VIDEO_URL} from './theropod-packed-video.js?v=20260930a'
 
 window.THREE = THREE
 
-const SOUND_URL = './assets/environment-v2/ambient-vocalization.m4a?v=20260930a'
+const SOUND_URL = './assets/environment-v2/ambient-vocalization-v2.m4a?v=20261003n'
 const ASSET = './assets/environment-v2/'
 const params = new URLSearchParams(location.search)
 const LANG = params.get('lang') === 'en' || (!params.get('lang') && localStorage.getItem('cretaceousLang') === 'en') ? 'en' : 'hr'
@@ -191,7 +191,7 @@ function build(scene) {
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
   terrain(`${ASSET}ground-square-v6.webp?v=20261003l`)
-  addCycads(`${ASSET}cycad-v1.png?v=20261003m`)
+  addCycads(`${ASSET}cycad-v2.png?v=20261003n`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
