@@ -9,12 +9,12 @@ const params = new URLSearchParams(location.search)
 const LANG = params.get('lang') === 'en' || (!params.get('lang') && localStorage.getItem('cretaceousLang') === 'en') ? 'en' : 'hr'
 const COPY = {
   hr: {
-    title: 'Kredni okoliš u stvarnom prostoru', mode: 'BETA · KREDNI OKOLIŠ U PROSTORU',
+    title: 'Kredni okoliš u stvarnom prostoru', mode: 'KREDNI OKOLIŠ U PROSTORU',
     place: 'Usmjeri kameru prema podu i dodirni mjesto za prizor.', placed: 'Kredni prizor je postavljen. Dodirni drugdje za novo mjesto.',
     hint: 'Dodirni pod gdje želiš postaviti kredni prizor', reset: 'Postavi ponovno', play: 'Pokreni prizor i zvuk', pause: 'Pauziraj prizor', blocked: 'Preglednik je blokirao reprodukciju. Dodirni tipku ponovno.',
   },
   en: {
-    title: 'Cretaceous environment in real space', mode: 'BETA · CRETACEOUS ENVIRONMENT IN REAL SPACE',
+    title: 'Cretaceous environment in real space', mode: 'CRETACEOUS ENVIRONMENT IN REAL SPACE',
     place: 'Aim the camera at the floor and tap where you want the scene.', placed: 'Cretaceous scene placed. Tap elsewhere to move it.',
     hint: 'Tap the floor to place the Cretaceous scene', reset: 'Place again', play: 'Start scene and sound', pause: 'Pause scene', blocked: 'Playback was blocked. Tap the button again.',
   },
@@ -163,7 +163,7 @@ function build(scene) {
   scene.add(world)
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
-  terrain(`${ASSET}ground.webp?v=20261003c`)
+  terrain(`${ASSET}ground-square-v2.webp?v=20261003d`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
