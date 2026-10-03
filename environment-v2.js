@@ -27,6 +27,7 @@ let figure = null
 let world = null
 let xrCamera = null
 let placed = false
+const cycads = []
 const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
 const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
@@ -148,24 +149,25 @@ function terrain(url) {
 
 function addCycads(url) {
   const map = texture(url)
-  const material = new THREE.SpriteMaterial({
+  const material = new THREE.MeshBasicMaterial({
     map,
     transparent: true,
-    alphaTest: .06,
+    alphaTest: .04,
+    side: THREE.DoubleSide,
     depthWrite: false,
     toneMapped: false,
   })
 
   const addOne = (x, z, width, height) => {
-    const sprite = new THREE.Sprite(material)
-    sprite.position.set(x, height * .5 - .015, z)
-    sprite.scale.set(width, height, 1)
-    sprite.renderOrder = 4
-    world.add(sprite)
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material)
+    mesh.position.set(x, height * .5 - .015, z)
+    mesh.renderOrder = 4
+    world.add(mesh)
+    cycads.push(mesh)
   }
 
-  addOne(-.78, .12, 1.28, 1.08)
-  addOne(.82, -.38, 1.02, .86)
+  addOne(-.68, .02, 1.42, 1.2)
+  addOne(.76, -.28, 1.12, .94)
 }
 
 function theropodMaterial(packedMap) {
@@ -188,7 +190,7 @@ function build(scene) {
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
   terrain(`${ASSET}ground-square-v2.webp?v=20261003f`)
-  addCycads(`${ASSET}cycad-v1.png?v=20261003g`)
+  addCycads(`${ASSET}cycad-v1.png?v=20261003h`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
@@ -262,6 +264,11 @@ const module = () => ({
     const figureWorld = new THREE.Vector3()
     figure.getWorldPosition(figureWorld)
     figure.rotation.y = Math.atan2(xrCamera.position.x - figureWorld.x, xrCamera.position.z - figureWorld.z)
+    for (const cycad of cycads) {
+      const cycadWorld = new THREE.Vector3()
+      cycad.getWorldPosition(cycadWorld)
+      cycad.rotation.y = Math.atan2(xrCamera.position.x - cycadWorld.x, xrCamera.position.z - cycadWorld.z)
+    }
   },
 })
 
