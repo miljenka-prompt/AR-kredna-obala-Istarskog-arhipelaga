@@ -59,6 +59,7 @@ function texture(url) {
   map.colorSpace = THREE.SRGBColorSpace
   map.minFilter = THREE.LinearFilter
   map.magFilter = THREE.LinearFilter
+  map.anisotropy = 8
   return map
 }
 
@@ -162,7 +163,7 @@ function build(scene) {
   scene.add(world)
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
-  terrain(`${ASSET}ground.webp`)
+  terrain(`${ASSET}ground.webp?v=20261003b`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
