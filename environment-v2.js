@@ -148,33 +148,24 @@ function terrain(url) {
 
 function addCycads(url) {
   const map = texture(url)
-  const material = new THREE.MeshBasicMaterial({
+  const material = new THREE.SpriteMaterial({
     map,
     transparent: true,
-    alphaTest: .08,
-    side: THREE.DoubleSide,
+    alphaTest: .06,
     depthWrite: false,
     toneMapped: false,
   })
 
-  const addOne = (x, z, scale, rotation) => {
-    const group = new THREE.Group()
-    const width = 1.2 * scale
-    const height = 1.05 * scale
-    for (const angle of [0, Math.PI / 2]) {
-      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material)
-      mesh.position.y = height * .5 - .015
-      mesh.rotation.y = angle
-      mesh.renderOrder = 3
-      group.add(mesh)
-    }
-    group.position.set(x, 0, z)
-    group.rotation.y = rotation
-    world.add(group)
+  const addOne = (x, z, width, height) => {
+    const sprite = new THREE.Sprite(material)
+    sprite.position.set(x, height * .5 - .015, z)
+    sprite.scale.set(width, height, 1)
+    sprite.renderOrder = 4
+    world.add(sprite)
   }
 
-  addOne(-1.55, .25, .92, .2)
-  addOne(1.45, -.7, .72, -.35)
+  addOne(-.78, .12, 1.28, 1.08)
+  addOne(.82, -.38, 1.02, .86)
 }
 
 function theropodMaterial(packedMap) {
@@ -197,7 +188,7 @@ function build(scene) {
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
   terrain(`${ASSET}ground-square-v2.webp?v=20261003f`)
-  addCycads(`${ASSET}cycad-v1.png?v=20261003f`)
+  addCycads(`${ASSET}cycad-v1.png?v=20261003g`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
