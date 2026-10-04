@@ -103,11 +103,12 @@ function fadedMaterial(url, opacity, edge = .13) {
         vec4 c=texture2D(map,vUv);
         vec2 d=(vUv-.5)/.5;
         float radial=1.0-smoothstep(1.0-edge,1.0,length(d));
+        float leftFade=smoothstep(0.0,.28,vUv.x);
         float nearWeight=1.0-smoothstep(.25,.9,vUv.y);
         float density=mix(.72,1.0,nearWeight);
         float water=smoothstep(.03,.20,min(c.g-c.r,c.b-c.r));
         float localOpacity=mix(opacity,min(1.0,opacity+.14),water);
-        float a=localOpacity*radial*density;
+        float a=localOpacity*radial*density*leftFade;
         if(a<.01)discard;
         gl_FragColor=vec4(c.rgb,a);
       }
@@ -165,7 +166,7 @@ function build(scene) {
   scene.add(world)
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
-  terrain(`${ASSET}ground-square-v7.webp?v=20261004c`)
+  terrain(`${ASSET}ground-square-v8.webp?v=20261004d`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
