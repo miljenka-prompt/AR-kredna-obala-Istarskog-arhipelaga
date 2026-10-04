@@ -27,7 +27,6 @@ let figure = null
 let world = null
 let xrCamera = null
 let placed = false
-const cycads = []
 const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
 const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
@@ -147,32 +146,6 @@ function terrain(url) {
   return mesh
 }
 
-function addCycads(url) {
-  const map = texture(url)
-  const material = new THREE.MeshBasicMaterial({
-    map,
-    transparent: true,
-    alphaTest: .035,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-    depthTest: false,
-    toneMapped: false,
-  })
-
-  const addOne = (x, z, width, height) => {
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material)
-    mesh.position.set(x, height * .5 - .01, z)
-    mesh.renderOrder = 4
-    mesh.frustumCulled = false
-    world.add(mesh)
-    cycads.push(mesh)
-  }
-
-  // Niski cikasi ostaju na bočnim rubovima, izvan putanje teropoda.
-  addOne(-.96, -.52, .96, .81)
-  addOne(1.02, -.82, .88, .74)
-}
-
 function theropodMaterial(packedMap) {
   return new THREE.ShaderMaterial({
     uniforms: {packedMap: {value: packedMap}},
@@ -192,8 +165,7 @@ function build(scene) {
   scene.add(world)
 
   // Prostor kamere ostaje vidljiv; rekonstrukcija je lokaliziran sloj na podu.
-  terrain(`${ASSET}ground-square-v6.webp?v=20261003l`)
-  addCycads(`${ASSET}cycad-from-video-v1.png?v=20261004a`)
+  terrain(`${ASSET}ground-square-v7.webp?v=20261004c`)
 
   rgbVideo = media(PACKED_VIDEO_URL)
   sound = media(SOUND_URL, 'audio')
@@ -267,11 +239,6 @@ const module = () => ({
     const figureWorld = new THREE.Vector3()
     figure.getWorldPosition(figureWorld)
     figure.rotation.y = Math.atan2(xrCamera.position.x - figureWorld.x, xrCamera.position.z - figureWorld.z)
-    for (const cycad of cycads) {
-      const cycadWorld = new THREE.Vector3()
-      cycad.getWorldPosition(cycadWorld)
-      cycad.rotation.y = Math.atan2(xrCamera.position.x - cycadWorld.x, xrCamera.position.z - cycadWorld.z)
-    }
   },
 })
 
