@@ -155,6 +155,7 @@ function addCycads(url) {
     alphaTest: .035,
     side: THREE.DoubleSide,
     depthWrite: false,
+    depthTest: false,
     toneMapped: false,
   })
 
@@ -162,13 +163,14 @@ function addCycads(url) {
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material)
     mesh.position.set(x, height * .5 - .01, z)
     mesh.renderOrder = 4
+    mesh.frustumCulled = false
     world.add(mesh)
     cycads.push(mesh)
   }
 
   // Niski cikasi ostaju na bočnim rubovima, izvan putanje teropoda.
-  addOne(-1.58, -.48, 1.28, 1.08)
-  addOne(1.62, -.62, 1.16, .98)
+  addOne(-.96, -.52, .96, .81)
+  addOne(1.02, -.82, .88, .74)
 }
 
 function theropodMaterial(packedMap) {
